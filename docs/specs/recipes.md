@@ -9,7 +9,8 @@ Status: Draft. check 0.5.0 implements renders and deploys, also from
 Code: <name>/, check/, .github/, renovate.json, README.md
 Verified against: #3, cert-manager at deploys; #10, valkey at deploys;
                   #14, mysql at deploys; #17, mongodb at deploys;
-                  #19, powerdns at deploys; #29, strimzi at deploys
+                  #19, powerdns at deploys; #29, strimzi at deploys;
+                  #26, keycloak-operator at deploys
 ```
 
 ## Problem
@@ -1564,8 +1565,7 @@ first command.
 
   - Test: manual: Renovate dry run
   - Since: #3; designed recipes: #14; mongodb: #17, #20; powerdns: #19;
-    keycloak: not implemented; release manifests: #22, this change; kafka:
-    not implemented
+    keycloak: #26; release manifests: #22, #25; kafka: not implemented
 
 ### Releasing
 
