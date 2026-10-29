@@ -10,3 +10,5 @@ dependencies = [
 
 [tool.uv]
 package = false
+# RCP-67: kapicorp/kapitan#1632 raises Kapitan's cap of <49.
+override-dependencies = ["cryptography>=50.0.0"]
