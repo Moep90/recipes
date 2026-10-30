@@ -148,3 +148,7 @@ a maintainer approved it (RCP-65). The rules `check lint` and the registry
 gate apply are in [docs/specs/recipes.md](docs/specs/recipes.md): the README
 lines and the 300-character description (RCP-23, RCP-32), the shipped files
 and their licenses (RCP-33, RCP-42), and generator pins by digest.
+
+## Security
+
+Report vulnerabilities privately, as [SECURITY.md](SECURITY.md) describes.
