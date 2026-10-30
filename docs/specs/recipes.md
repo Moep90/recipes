@@ -1,7 +1,7 @@
 # Recipes
 
 ```text
-Status: Draft. check 0.13.0 implements renders and deploys, for charts
+Status: Draft. check 0.13.1 implements renders and deploys, for charts
         from OCI and HTTP repositories, for release manifests (RCP-59) and
         for compose sources and designed recipes (RCP-38, RCP-44, RCP-58),
         included recipes and prerequisites (RCP-47 to RCP-50, RCP-54,
@@ -2360,6 +2360,26 @@ argument as a literal `${...}` and reads nothing.
   - Test: manual: the `to-recipe` skill names a `check-vX.Y.Z` tag
   - Since: tags `check-v0.9.0` and `check-v0.10.0`; the skill pins
     `check-v0.10.0` since kapitan-recipes 0.3.0, Moep90/agent-skills#9
+
+- RCP-67: `check/pyproject.toml` MAY lift a dependency's version constraint
+  only to reach a release that fixes a published advisory. The override is
+  removed once upstream allows the fixed release.
+
+  The override is an entry of `override-dependencies` under `[tool.uv]`: a
+  lower bound on the fixed release, with a comment that names the upstream
+  change. GI-16 does the same for the registry's sandbox. Kapitan 0.36.3
+  requires `cryptography<49`, and `check` overrides it to 50.0.0 or later
+  (PYSEC-2026-3552, PYSEC-2026-3553, PYSEC-2026-3554) until a Kapitan
+  release contains kapicorp/kapitan#1632. In Kapitan only the ref functions
+  import cryptography, and a recipe has no refs (RCP-19).
+
+  The registry gate and the `to-recipe` skill run `check` from a release
+  tag (RCP-22), so they get the fixed version with the next `check`
+  release.
+
+  - Test: CI `test` and `check` jobs install and compile with the
+    overridden version (partial: no check calls Kapitan's ref functions)
+  - Since: #52
 
 Kapitan trusts its inventory: a class may run any binary through an
 `external` entry. Recipes change that model, because their classes come
