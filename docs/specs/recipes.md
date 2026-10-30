@@ -1,7 +1,7 @@
 # Recipes
 
 ```text
-Status: Draft. check 0.13.0 implements renders and deploys, for charts
+Status: Draft. check 0.13.1 implements renders and deploys, for charts
         from OCI and HTTP repositories, for release manifests (RCP-59) and
         for compose sources and designed recipes (RCP-38, RCP-44, RCP-58),
         included recipes and prerequisites (RCP-47 to RCP-50, RCP-54,
@@ -2337,6 +2337,26 @@ argument as a literal `${...}` and reads nothing.
   - Since: #13 (CODEOWNERS, as RCP-44, an ID it shared with the
     designed-recipe rule), #18 (workflow)
 
+- RCP-69: `SECURITY.md` MUST say how to report a vulnerability privately,
+  which versions get fixes and how a fix is published, and the README MUST
+  link it.
+
+  Reports go through GitHub private vulnerability reporting, which the
+  organisation's code security configuration turns on for every public
+  repository, or by mail. The newest release of each recipe and of `check`
+  gets fixes, and a recipe without a release is fixed on `main`. A fix is
+  published as a GitHub security advisory with the affected versions and a
+  CVSS score.
+
+  Handling is best effort, without a service level or a response time.
+  kadet-hub is run by a private person and nothing is monetised, so the
+  maintainer reads the EU Cyber Resilience Act as not applying (recital
+  18).
+
+  - Test: manual: `gh api repos/kadet-hub/recipes/private-vulnerability-reporting`
+    returns `"enabled": true`
+  - Since: #54
+
 - RCP-21: A pull request that moves a recipe to a new chart version MUST
   show, apart from the object diff, every image that changed, the `can-i`
   diff of each subject between the old and the new recipe, and any added
@@ -2366,6 +2386,26 @@ argument as a literal `${...}` and reads nothing.
   - Test: manual: the `to-recipe` skill names a `check-vX.Y.Z` tag
   - Since: tags `check-v0.9.0` and `check-v0.10.0`; the skill pins
     `check-v0.10.0` since kapitan-recipes 0.3.0, Moep90/agent-skills#9
+
+- RCP-67: `check/pyproject.toml` MAY lift a dependency's version constraint
+  only to reach a release that fixes a published advisory. The override is
+  removed once upstream allows the fixed release.
+
+  The override is an entry of `override-dependencies` under `[tool.uv]`: a
+  lower bound on the fixed release, with a comment that names the upstream
+  change. GI-16 does the same for the registry's sandbox. Kapitan 0.36.3
+  requires `cryptography<49`, and `check` overrides it to 50.0.0 or later
+  (PYSEC-2026-3552, PYSEC-2026-3553, PYSEC-2026-3554) until a Kapitan
+  release contains kapicorp/kapitan#1632. In Kapitan only the ref functions
+  import cryptography, and a recipe has no refs (RCP-19).
+
+  The registry gate and the `to-recipe` skill run `check` from a release
+  tag (RCP-22), so they get the fixed version with the next `check`
+  release.
+
+  - Test: CI `test` and `check` jobs install and compile with the
+    overridden version (partial: no check calls Kapitan's ref functions)
+  - Since: #52
 
 Kapitan trusts its inventory: a class may run any binary through an
 `external` entry. Recipes change that model, because their classes come
@@ -2538,6 +2578,8 @@ feature's design (OQ-6).
 | Path | Purpose |
 |---|---|
 | `README.md` | Using a recipe (RCP-15) |
+| `SECURITY.md` | Reporting a vulnerability (RCP-69) |
+| `SECURITY.md` | Reporting a vulnerability (RCP-69) |
 | `<name>/` | One recipe (RCP-1) |
 | `check/check.py` | CLI, sources, kind clusters, report; pins the kind node and Kapitan `next` images |
 | `check/lint.py` | `check lint` (RCP-1 to RCP-7, RCP-66, RCP-17 to RCP-19, RCP-23, RCP-32, RCP-33, RCP-35, RCP-36, RCP-38, RCP-40, RCP-43, RCP-44, RCP-58) |
