@@ -9785,7 +9785,7 @@ uploader once it is rendered.
   VolumeSnapshotLocation, Schedule or Backup (DEC-351, DEC-353).
 
   - Test: `check velero --level renders` (RCP-12); RCP-426
-  - Since: this change
+  - Since: #197
 
 - RCP-425: `velero` MUST render the Secret `velero` whose key `cloud` is
   the AWS profile `default` with `applications.velero.s3.access_key_id`
@@ -9796,7 +9796,7 @@ uploader once it is rendered.
   target sets them, as refs (RCP-19, RCP-40).
 
   - Test: `check lint` (RCP-262); RCP-426
-  - Since: this change
+  - Since: #197
 
 - RCP-426: The `tests/smoke` of `velero` MUST run SeaweedFS with an S3
   identity of the keys of `tests/target.yml` and create a bucket there. A
@@ -9814,7 +9814,7 @@ uploader once it is rendered.
   failed.
 
   - Test: CI `check` job, report line `smoke`
-  - Since: this change
+  - Since: #197
 
 - AC-424 (RCP-424 to RCP-426): `check velero --level deploys` passes in CI
   on each Kubernetes minor. `check lint velero` passes, so the Include
