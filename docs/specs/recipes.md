@@ -264,8 +264,8 @@ source (DEC-10), and that file sets `network_mode`, `cap_drop` and
 settings only from the file `/app/data/.env`, which its web setup writes.
 The option renders that file from a Secret, so the target sets every
 setting, and the web setup and the settings page cannot save. Revised in
-this change: paperless-ai 4.x reads that file only on its first start,
-and the option sets the settings as variables (DEC-350).
+#196: paperless-ai 4.x reads that file only on its first start, and
+the option sets the settings as variables (DEC-350).
 
 DEC-23: A relative bind mount of a directory that the pinned repository
 does not contain becomes a ConfigMap when the documentation has the user
@@ -3092,12 +3092,12 @@ file does.
   `.url`, `.model`, `.api_key` and `.jwt_secret`, which the target sets.
   Without the option it MUST render no object of paperless-ai.
 
-  Revised in this change: the settings were the file `/app/data/.env`
+  Revised in #196: the settings were the file `/app/data/.env`
   alone, which paperless-ai 4.x reads only on its first start (RCP-423).
 
   - Test: `check paperless-ngx`; manual: compile of `tests/target.yml`
     without the option
-  - Since: #63, this change
+  - Since: #63, #196
 
 - RCP-423: With the option `ai`, `paperless-ngx` MUST set each setting of
   RCP-72 as a variable of the container `paperless-ngx-ai`, the token, the
@@ -3111,7 +3111,7 @@ file does.
 
   - Test: `check paperless-ngx --level deploys`, the check of
     `config.json` in RCP-73
-  - Since: this change
+  - Since: #196
 
 ### Proof
 
@@ -3144,11 +3144,10 @@ LLM is not tested.
   the check independent of that order. `config.json` exists before the
   restart, so afterwards paperless-ai reads it and not the seed, and the
   title needs the variables of RCP-423 to win over the file's provider.
-  Revised in this change: the check of `config.json`, for paperless-ai
-  4.1.0.
+  Revised in #196: the check of `config.json`, for paperless-ai 4.1.0.
 
   - Test: CI `check` job
-  - Since: #63, this change
+  - Since: #63, #196
 
 ## SearXNG
 
