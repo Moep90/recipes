@@ -9732,7 +9732,7 @@ runs the pod as root.
   and the Service and ServiceAccount of the same name (DEC-361).
 
   - Test: `check node-exporter --level renders` (RCP-12); RCP-434
-  - Since: this change
+  - Since: #199
 
 - RCP-434: The `tests/smoke` of `node-exporter` MUST require
   `node_exporter_build_info` with the version of the DaemonSet's image
@@ -9747,7 +9747,7 @@ runs the pod as root.
   the node's port refused the connection and the test failed.
 
   - Test: CI `check` job, report line `smoke`
-  - Since: this change
+  - Since: #199
 
 - AC-433 (RCP-433, RCP-434): `check node-exporter --level deploys` passes
   in CI on each Kubernetes minor.
