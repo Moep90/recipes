@@ -1272,7 +1272,7 @@ What the table does not map is a gap, and so is each of these:
   Revised in #115: an `emptyDir` at `/tmp` of a read-only service that
   writes there, for navidrome (DEC-215). Revised in #141: `-h 127.0.0.1`
   for a `pg_isready` health check, for miniflux (DEC-334).
-  Revised in this change: `gitlab` keeps nginx's port 80 as its
+  Revised in #198: `gitlab` keeps nginx's port 80 as its
   Service port and renders no SSH port (DEC-356), and probes
   `/users/sign_in` in place of its `healthcheck` (DEC-358), exceptions
   for one recipe.
@@ -1283,7 +1283,7 @@ What the table does not map is a gap, and so is each of these:
     `cap_add`: #68; `init`, wait for the database: #91; file the image
     carries: #118; `.env`, configuration directory, `aliases`,
     `read_only`, `tmpfs`: #117; `/tmp` of a read-only service: #115;
-    `pg_isready` over TCP: #141; gitlab's ports and probes: this change
+    `pg_isready` over TCP: #141; gitlab's ports and probes: #198
 
 - RCP-38: A compose recipe MUST be at level `deploys`. `check lint` MUST
   fail on an RBAC object in the compiled recipe, on a workload whose
@@ -2405,7 +2405,7 @@ statement third.
 
   - Test: `check postgresql`; CI `check` job, report line `smoke`;
     manual: a compile of `tests/target.yml` without the option
-  - Since: this change
+  - Since: #198
 
 - AC-426 (RCP-432): `check postgresql --level deploys` passes in CI on each
   Kubernetes minor, and its smoke test reports that `app` may create
@@ -9903,7 +9903,7 @@ have to know it, while the option is one class line in the recipe.
   pull request (RCP-16), and the SHA-256 by hand.
 
   - Test: `check lint`; CI `check` job, report line `compose`
-  - Since: this change
+  - Since: #198
 
 - RCP-428: `gitlab` MUST run the StatefulSet `gitlab` with one claim
   template, `data`, at `/home/git/data`, the container port 80 named
@@ -9914,7 +9914,7 @@ have to know it, while the option is one class line in the recipe.
   and routes to the Service by these names.
 
   - Test: `check lint`; RCP-431
-  - Since: this change
+  - Since: #198
 
 - RCP-429: `gitlab` MUST include `postgresql` with its option `createdb`
   (DEC-360). It MUST set each variable of the compose service
@@ -9926,7 +9926,7 @@ have to know it, while the option is one class line in the recipe.
   `GITLAB_SSH_PORT` MUST be empty.
 
   - Test: manual: review against the compose file; RCP-431
-  - Since: this change
+  - Since: #198
 
 - RCP-430: `gitlab` MUST set the six `GITLAB_SECRETS_*` from the Secret
   `gitlab`, whose values are `applications.gitlab.db_key_base`,
@@ -9942,7 +9942,7 @@ have to know it, while the option is one class line in the recipe.
   sets each parameter, the six keys as refs (RCP-19, RCP-40).
 
   - Test: `check lint` (RCP-262); RCP-431
-  - Since: this change
+  - Since: #198
 
 - RCP-431: The `tests/smoke` of `gitlab` MUST require no Pod Security
   warning from a server-side dry run of the label
@@ -9962,7 +9962,7 @@ have to know it, while the option is one class line in the recipe.
   `/home/git/data/repositories` on the claim `data`.
 
   - Test: CI `check` job, report line `smoke`
-  - Since: this change
+  - Since: #198
 
 - AC-425 (RCP-427 to RCP-431): `check gitlab --level deploys` passes in CI
   on each Kubernetes minor, and its smoke test clones `root/smoke` after
