@@ -9736,7 +9736,7 @@ unrestricted-psp`, a permission the recipe cannot name.
   `smartctl-exporter-prometheus-smartctl-exporter` (DEC-362).
 
   - Test: `check smartctl-exporter --level renders` (RCP-12); RCP-437
-  - Since: this change
+  - Since: #200
 
 - RCP-436: `tests/values.yaml` of `smartctl-exporter` MUST set
   `rbac.create: false`, and the recipe MUST render no Role, ClusterRole or
@@ -9744,7 +9744,7 @@ unrestricted-psp`, a permission the recipe cannot name.
 
   - Test: `check smartctl-exporter --level renders`, permissions equal for
     no subject
-  - Since: this change
+  - Since: #200
 
 - RCP-437: The `tests/smoke` of `smartctl-exporter` MUST require
   `smartctl_exporter_build_info` with the version of the DaemonSet's image
@@ -9758,7 +9758,7 @@ unrestricted-psp`, a permission the recipe cannot name.
   disks of their own, which the test needs.
 
   - Test: CI `check` job, report line `smoke`
-  - Since: this change
+  - Since: #200
 
 - AC-435 (RCP-435 to RCP-437): `check smartctl-exporter --level deploys`
   passes in CI on each Kubernetes minor.
