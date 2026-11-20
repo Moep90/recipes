@@ -121,10 +121,9 @@ recipe renders no probe.
 
 `check open-archiver --level deploys` with `tests/target.yml`, with check
 0.24.2 on kind for each Kubernetes minor CI tests, with `cnpg` installed
-first. The objects
-of `postgresql` and `valkey` are applied with the recipe. A compose file
-has no Kubernetes objects to compare with, so the recipe is proven by
-deploying it (RCP-38). `tests/target.yml` sets test values for the four
+first. The objects of `postgresql` and `valkey` are applied with the
+recipe. A compose file has no Kubernetes objects to compare with, so the
+recipe is proven by deploying it (RCP-38). `tests/target.yml` sets test values for the four
 parameters and runs one PostgreSQL instance.
 
 `tests/smoke` starts a pod of the Meilisearch image, which carries `curl`.

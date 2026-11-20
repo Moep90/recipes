@@ -9765,7 +9765,7 @@ at start.
   (DEC-364 to DEC-366).
 
   - Test: `check lint` (RCP-23); RCP-440
-  - Since: this change
+  - Since: #202
 
 - RCP-439: `open-archiver` MUST set `JWT_SECRET`, `ENCRYPTION_KEY` and
   `MEILI_MASTER_KEY` from the Secret `open-archiver`, whose values are
@@ -9778,7 +9778,7 @@ at start.
   target sets them, as refs (RCP-19, RCP-40).
 
   - Test: `check lint` (RCP-262); RCP-440
-  - Since: this change
+  - Since: #202
 
 - RCP-440: The `tests/smoke` of `open-archiver` MUST, from a pod of the
   Meilisearch image and through the Service `open-archiver` on port 3000,
@@ -9796,7 +9796,7 @@ at start.
   the test needs no other image.
 
   - Test: CI `check` job, report line `smoke`
-  - Since: this change
+  - Since: #202
 
 - AC-438 (RCP-438 to RCP-440): `check open-archiver --level deploys`
   passes in CI on each Kubernetes minor, and its smoke test logs the admin
