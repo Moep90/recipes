@@ -9746,7 +9746,7 @@ merged into the 28 and the ClusterRole keeps all of them.
   ServiceAccount, ClusterRole and ClusterRoleBinding of the same name.
 
   - Test: `check kube-state-metrics --level renders` (RCP-12); RCP-442
-  - Since: this change
+  - Since: #205
 
 - RCP-442: The `tests/smoke` of `kube-state-metrics` MUST require, through
   the Service, `kube_pod_info` for a pod `coredns-*` and a non-zero
@@ -9765,7 +9765,7 @@ merged into the 28 and the ClusterRole keeps all of them.
   about it and the test failed.
 
   - Test: CI `check` job, report line `smoke`
-  - Since: this change
+  - Since: #205
 
 - RCP-443: A target MUST be able to replace the `--resources` argument of
   `kube-state-metrics` by `args.resources`, add arguments by new keys of
@@ -9784,7 +9784,7 @@ merged into the 28 and the ClusterRole keeps all of them.
   run of RCP-442.
 
   - Test: manual: compile and deploy of the README's target
-  - Since: this change
+  - Since: #205
 
 - AC-441 (RCP-441, RCP-442): `check kube-state-metrics --level deploys`
   passes in CI on each Kubernetes minor.
