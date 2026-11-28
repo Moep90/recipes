@@ -9680,6 +9680,122 @@ Ingress in front of the Service with `GOTIFY_SERVER_TRUSTEDPROXIES`,
 plugins, OIDC, MySQL or PostgreSQL in place of SQLite, and TLS in gotify
 itself.
 
+## cAdvisor
+
+cAdvisor reads the cgroups of the containers on the node it runs on and
+serves their resource usage as Prometheus metrics on port 8080.
+google/cadvisor, Apache-2.0, builds the image `ghcr.io/google/cadvisor`,
+which its Kubernetes base and `deploy/kubernetes/README.md` run. `cadvisor`
+runs release 0.61.1 of 2026-11-18, the newest on 2026-11-28, pinned to the
+index `sha256:4929b70e82079d001d0028b85d6a4dd25ad4666b719455c9542b983489963916`
+for linux/amd64 and linux/arm64. The image reports the revision `ddc2d54`
+in `cadvisor_version_info`, the commit of the tag v0.61.1. google/cadvisor
+had published no security advisory by 2026-11-28.
+
+DEC-368: `cadvisor` is a designed recipe on the image (Designed recipes),
+although google/cadvisor ships a Kustomize base in `deploy/kubernetes/base`.
+`check` takes no Kustomize source (RCP-23), and DEC-15 kept kustomize out
+of `check` and the registry gate. The base at the tag v0.61.1 also runs
+`ghcr.io/google/cadvisor:0.54.0`, so it does not describe the release, and
+its README has the user set the image with `kustomize edit set image`. The
+release attaches only the binaries for amd64 and arm64, so there is no
+release manifest either. The recipe follows the base where the image leaves
+a choice open: a DaemonSet that runs the image as root, with the node's `/`
+at `/rootfs` and `/sys` at `/sys`, both read-only, port 8080, and no API
+credentials.
+
+| Alternative | Why it was not taken |
+|---|---|
+| The Kustomize base as the source | `check` and the gate would need kustomize (DEC-15), and the base runs 0.54.0 at the tag v0.61.1. |
+| A chart of a third party | DEC-11 rejects it. google/cadvisor ships no chart. |
+
+DEC-369: `cadvisor` mounts the node's `/`, `/sys` and `/run/containerd`
+read-only as `hostPath` volumes and nothing else. The base also mounts
+`/var/run`, `/var/lib/docker` and `/dev/disk`. The first two are the paths
+of the Docker runtime, which the kubelet has not had built in since
+Kubernetes 1.24. `/dev/disk` names the devices of disk metrics, which the
+recipe does not enable (DEC-370). In `/run/containerd` cAdvisor finds the
+socket at its default `--containerd=/run/containerd/containerd.sock` and
+reads each container's labels through it. Without the socket it reports
+the cgroups by path only, with no pod, namespace or container name. A
+read-only mount does not stop a process from connecting to a socket, so the
+pod can use containerd's API, and through it every container of its node.
+The README says so. Pod Security `baseline` forbids `hostPath` volumes, so
+the namespace needs the level `privileged`.
+
+The pod runs as root, the image's user, with `seccompProfile: RuntimeDefault`,
+and its container with `allowPrivilegeEscalation: false`. The base sets
+neither field. Its annotation `seccomp.security.alpha.kubernetes.io/pod`
+sits on the DaemonSet's metadata, where it does not reach the pod.
+`cadvisor` tolerates every `NoSchedule` taint, so it also runs on
+control-plane nodes, and renders no ServiceAccount: the pod mounts no token
+and is bound to no role.
+
+DEC-370: `cadvisor` enables only the metric family `memory` by default,
+through `applications.cadvisor.enable_metrics` in `--enable_metrics`. A
+target sets the parameter to cAdvisor's comma-separated list for more. On
+the kind node of the proof in this change, with 10 running containers, a
+pod served 1401 series with `memory` and 2926 with cAdvisor's default set.
+`--housekeeping_interval=10s`, `--store_container_labels=false` and
+`--whitelisted_container_labels` with `io.kubernetes.container.name`,
+`io.kubernetes.pod.name` and `io.kubernetes.pod.namespace` come from
+upstream's example overlay `deploy/kubernetes/overlays/examples/cadvisor-args.yaml`,
+whose comment says it mirrors the kubelet's cAdvisor. Metrics then carry
+the pod, namespace and container name as `container_label_*` labels, and
+no other label of the container.
+
+The readiness probe runs the image's `HEALTHCHECK`, `/usr/bin/healthcheck.sh`,
+every 30 seconds with a timeout of 3 seconds, and there is no liveness
+probe, as Designed recipes map a `HEALTHCHECK`. The base has no probe. The
+Service `cadvisor` of type `ClusterIP` on port 8080 comes from the image's
+`EXPOSE`. The base requests 400m CPU and 400Mi and limits them to 800m and
+2000Mi. `cadvisor` requests 50m and 128Mi and limits memory to 512Mi. On
+the kind node of the proof, cAdvisor's working set was 24 MiB, which is no
+measurement of a busy node.
+
+- RCP-444: `cadvisor` MUST run the image of its `Source` line as the
+  DaemonSet `cadvisor` with the node's `/`, `/sys` and `/run/containerd`
+  as read-only `hostPath` volumes at `/rootfs`, `/sys` and
+  `/run/containerd`, and the Service `cadvisor` on port 8080 of type
+  `ClusterIP`. It MUST NOT render another `hostPath` volume, a host
+  namespace, a privileged container, an added capability or an RBAC object
+  (DEC-368, DEC-369).
+
+  - Test: `check lint` (RCP-23, RCP-44); manual: review; RCP-446
+  - Since: this change
+
+- RCP-445: The DaemonSet `cadvisor` MUST pass `--enable_metrics` with
+  `applications.cadvisor.enable_metrics`, `memory` by default, and
+  `--store_container_labels=false` with `--whitelisted_container_labels`
+  of the three names of DEC-370.
+
+  - Test: RCP-446
+  - Since: this change
+
+- RCP-446: The `tests/smoke` of `cadvisor` MUST require
+  `cadvisor_version_info` with the version of the DaemonSet's image through
+  the Service `cadvisor`. For every pod of the DaemonSet it MUST read
+  `/metrics` through the API server's pod proxy and require
+  `container_memory_working_set_bytes` of the pod's container `cadvisor`
+  with the pod's name and namespace, and it MUST fail on a label
+  `container_label_io_kubernetes_pod_uid` or a series
+  `container_cpu_usage_seconds_total`.
+
+  On kind 1.37.0, the test failed with the volume `containerd` removed from
+  the running DaemonSet, because the series carried only the cgroup's path.
+  It failed without `--enable_metrics`, on the CPU series, and without
+  `--store_container_labels=false`, on the label of the pod's UID.
+
+  - Test: CI `check` job, report line `smoke`
+  - Since: this change
+
+- AC-444 (RCP-444 to RCP-446): `check cadvisor --level deploys` passes in
+  CI on each Kubernetes minor.
+
+Not proven: the metric families other than `memory`, nodes with the Docker
+runtime or CRI-O, cgroup v1, and the resources on a node with many
+containers.
+
 ## Migration
 
 Replacing a running Helm release cannot be a plain `kubectl apply`:
@@ -10891,3 +11007,4 @@ feature's design (OQ-6).
 | ntfy | `docker.io/binwiederhier/ntfy` v2.37.2, designed on the image (DEC-335), UID 1000 under `restricted` on port 80 by the sysctl `net.ipv4.ip_unprivileged_port_start` (DEC-336), private instance with `deny-all` and users from `applications.ntfy.auth_users` (DEC-337), `NTFY_BASE_URL` required (DEC-338), message cache, users and attachments on the claim `data`, `kubernetes` generator 1.14.0, level `deploys` (RCP-410 to RCP-412) |
 | linkding | `docker-compose.yml` of linkding v1.47.0 at `24b5ad6` with `.env.sample` as `.env`, SQLite and the secret key on the claim `data`, UID 33 under `restricted` (DEC-339), background tasks off (DEC-340), first superuser from required parameters (DEC-341), `kubernetes` generator 1.14.0, level `deploys` (RCP-413 to RCP-416) |
 | gotify | `docker.io/gotify/server` 3.1.1, designed on the image (DEC-342), UID 1234 under `restricted` on port 80 by the sysctl `net.ipv4.ip_unprivileged_port_start` (DEC-343), the admin's password from `applications.gotify.admin_password` (DEC-344), SQLite database on the claim `data`, `kubernetes` generator 1.14.0, level `deploys` (RCP-418 to RCP-420) |
+| cadvisor | `ghcr.io/google/cadvisor` 0.61.1, designed on the image although google/cadvisor ships a Kustomize base (DEC-368), DaemonSet as root with the node's `/`, `/sys` and `/run/containerd` read-only under Pod Security `privileged` (DEC-369), memory metrics labelled with pod, namespace and container (DEC-370), `kubernetes` generator 1.14.0, level `deploys` (RCP-444 to RCP-446) |
