@@ -1,0 +1,64 @@
+parameters:
+  components:
+    cadvisor:
+      application: cadvisor
+      type: daemonset
+      # renovate: Source
+      image: ghcr.io/google/cadvisor:0.61.1@sha256:4929b70e82079d001d0028b85d6a4dd25ad4666b719455c9542b983489963916
+      # As upstream's example overlay for Kubernetes sets them, with the
+      # metric families of applications.cadvisor.enable_metrics (DEC-370).
+      args:
+        housekeeping: --housekeeping_interval=10s
+        metrics: --enable_metrics=${applications.cadvisor.enable_metrics}
+        store-labels: --store_container_labels=false
+        labels: --whitelisted_container_labels=io.kubernetes.container.name,io.kubernetes.pod.name,io.kubernetes.pod.namespace
+      ports:
+        http:
+          service_port: 8080
+      service:
+        type: ClusterIP
+      # The image's HEALTHCHECK.
+      healthcheck:
+        readiness:
+          type: command
+          command:
+            - /usr/bin/healthcheck.sh
+          period_seconds: 30
+          timeout_seconds: 3
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 512Mi
+      # The image runs as root, as upstream's base does (DEC-369).
+      workload_security_context:
+        seccompProfile:
+          type: RuntimeDefault
+      security_context:
+        allowPrivilegeEscalation: false
+      # The node's cgroups below /sys and the containerd socket, through which
+      # cAdvisor names each container's pod (DEC-369).
+      volumes:
+        rootfs:
+          hostPath:
+            path: /
+        sys:
+          hostPath:
+            path: /sys
+        containerd:
+          hostPath:
+            path: /run/containerd
+      volume_mounts:
+        rootfs:
+          mount_path: /rootfs
+          read_only: true
+        sys:
+          mount_path: /sys
+          read_only: true
+        containerd:
+          mount_path: /run/containerd
+          read_only: true
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists

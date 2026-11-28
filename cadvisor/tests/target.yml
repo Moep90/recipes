@@ -1,0 +1,7 @@
+classes:
+  - recipes.cadvisor
+parameters:
+  namespace: cadvisor
+  kapitan:
+    vars:
+      target: cadvisor
