@@ -9734,7 +9734,7 @@ and is bound to no role.
 DEC-370: `cadvisor` enables only the metric family `memory` by default,
 through `applications.cadvisor.enable_metrics` in `--enable_metrics`. A
 target sets the parameter to cAdvisor's comma-separated list for more. On
-the kind node of the proof in this change, with 10 running containers, a
+the kind node of the proof in #208, with 10 running containers, a
 pod served 1401 series with `memory` and 2926 with cAdvisor's default set.
 `--housekeeping_interval=10s`, `--store_container_labels=false` and
 `--whitelisted_container_labels` with `io.kubernetes.container.name`,
@@ -9762,7 +9762,7 @@ measurement of a busy node.
   (DEC-368, DEC-369).
 
   - Test: `check lint` (RCP-23, RCP-44); manual: review; RCP-446
-  - Since: this change
+  - Since: #208
 
 - RCP-445: The DaemonSet `cadvisor` MUST pass `--enable_metrics` with
   `applications.cadvisor.enable_metrics`, `memory` by default, and
@@ -9770,7 +9770,7 @@ measurement of a busy node.
   of the three names of DEC-370.
 
   - Test: RCP-446
-  - Since: this change
+  - Since: #208
 
 - RCP-446: The `tests/smoke` of `cadvisor` MUST require
   `cadvisor_version_info` with the version of the DaemonSet's image through
@@ -9787,7 +9787,7 @@ measurement of a busy node.
   `--store_container_labels=false`, on the label of the pod's UID.
 
   - Test: CI `check` job, report line `smoke`
-  - Since: this change
+  - Since: #208
 
 - AC-444 (RCP-444 to RCP-446): `check cadvisor --level deploys` passes in
   CI on each Kubernetes minor.
